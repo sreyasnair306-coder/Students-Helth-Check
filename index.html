@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Mental Health Check-In</title>
+
+<style>
+:root {
+    --bg: #0f172a;
+    --card: #020617;
+    --text: #e5e7eb;
+}
+
+.light {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #020617;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 12px;
+    width: 340px;
+    text-align: center;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.good { background: #22c55e; }
+.okay { background: #facc15; color: #000; }
+.bad { background: #ef4444; }
+
+.toggle {
+    background: #64748b;
+    margin-bottom: 10px;
+}
+
+#advice {
+    margin-top: 10px;
+}
+
+.bar {
+    height: 20px;
+    margin: 4px 0;
+    border-radius: 6px;
+}
+
+.good-bar { background: #22c55e; width: 100%; }
+.okay-bar { background: #facc15; width: 60%; }
+.bad-bar { background: #ef4444; width: 30%; }
+
+.breathe {
+    font-size: 18px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <button class="toggle" onclick="toggleMode()">🌗 Toggle Mode</button>
+
+    <h2>How are you feeling today?</h2>
+
+    <button class="good" onclick="saveMood('Good')">😊 Good</button>
+    <button class="okay" onclick="saveMood('Okay')">😐 Okay</button>
+    <button class="bad" onclick="saveMood('Bad')">😞 Not Good</button>
+
+    <p id="advice"></p>
+
+    <h3>📊 Last 7 Days</h3>
+    <div id="graph"></div>
+
+    <h3>🧘 Breathing Exercise</h3>
+    <p class="breathe" id="breatheText">Click Start</p>
+    <button onclick="startBreathing()">Start Breathing</button>
+</div>
+
+<script>
+const body = document.body;
+if (localStorage.getItem("mode") === "light") body.classList.add("light");
+
+function toggleMode() {
+    body.classList.toggle("light");
+    localStorage.setItem("mode", body.classList.contains("light") ? "light" : "dark");
+}
+
+function saveMood(mood) {
+    const today = new Date().toDateString();
+    localStorage.setItem(today, mood);
+
+    const advice = {
+        Good: "Great! Keep going 🌟",
+        Okay: "Take it slow 💙",
+        Bad: "You matter. Talk to someone 🤍"
+    };
+
+    document.getElementById("advice").innerText = advice[mood];
+    loadGraph();
+}
+
+function loadGraph() {
+    const graph = document.getElementById("graph");
+    graph.innerHTML = "";
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const mood = localStorage.getItem(date.toDateString());
+
+        if (!mood) continue;
+
+        const bar = document.createElement("div");
+        bar.className = "bar " + mood.toLowerCase() + "-bar";
+        bar.innerText = mood;
+        graph.appendChild(bar);
+    }
+}
+
+function startBreathing() {
+    const text = document.getElementById("breatheText");
+    const steps = ["Inhale 😌", "Hold ✋", "Exhale 😮‍💨"];
+    let i = 0;
+
+    const interval = setInterval(() => {
+        text.innerText = steps[i % 3];
+        i++;
+        if (i === 9) clearInterval(interval);
+    }, 4000);
+}
+
+loadGraph();
+</script>
+
+</body>
+</html>
